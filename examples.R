@@ -31,31 +31,6 @@ lapply(list("dplyr", "collostructions", "concordances", "koRpus", "data.table", 
        require, character.only=T)
 
 
-# read in files
-can <- getNSE("ngrams_encow/can.txt")
-gb <- getNSE("ngrams_encow/gb.txt")
-us <- getNSE("ngrams_encow/us.txt")
-
-
-# make n-gram frequency lists
-can1 <- can$Tag2 %>% table %>% as.data.frame()
-colnames(can1) <- c("Lemma", "Freq_can")
-
-gb1 <- gb$Tag2 %>% table %>% as.data.frame()
-colnames(gb1) <- c("Lemma", "Freq_gb")
-
-us1 <- us$Tag2 %>% table %>% as.data.frame()
-colnames(us1) <- c("Lemma", "Freq_us")
-
-#combine frequency lists
-fl <- merge(merge(gb1, can1, all = T), us1, all=T)
-fl[is.na(fl)] <- 0
-
-
-# collexeme analysis
-collex.dist(fl, threshold = 10) # not very informative...
-
-
 ############################
 # Toy example: unmitigated #
 ############################
@@ -193,6 +168,35 @@ both <- merge(fem, ml, all = T)
 # replace NAs by 0
 both[is.na(both)] <- 0
 
-both %>% collex.dist(reverse = T, am = "chisq")
+both %>% collex.dist(am = "chisq")
+
+
+
+###################################
+# TOY EXAMPLE: 3-grams from ENCOW #
+###################################
+
+# read in files
+can <- getNSE("ngrams_encow/can.txt")
+gb <- getNSE("ngrams_encow/gb.txt")
+us <- getNSE("ngrams_encow/us.txt")
+
+
+# make n-gram frequency lists
+can1 <- can$Key %>% table %>% as.data.frame()
+colnames(can1) <- c("Lemma", "Freq_can")
+
+gb1 <- gb$Key %>% table %>% as.data.frame()
+colnames(gb1) <- c("Lemma", "Freq_gb")
+
+us1 <- us$Key %>% table %>% as.data.frame()
+colnames(us1) <- c("Lemma", "Freq_us")
+
+#combine frequency lists
+fl <- merge(merge(gb1, can1, all = T), us1, all=T)
+fl[is.na(fl)] <- 0
+
+
+# collexeme analysis
 
 
