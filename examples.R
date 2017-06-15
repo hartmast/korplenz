@@ -9,7 +9,7 @@ options(stringsAsFactors = F)
 #################
 
 # install and load packages
-sapply(c("dplyr", "devtools", "koRpus"), 
+sapply(c("dplyr", "devtools", "koRpus", "data.table", "reshape2", "pbapply"), 
        function(x) if(!is.element(x, installed.packages())) install.packages(x, dependencies = T))
 
 
@@ -27,7 +27,7 @@ if(!is.element("concordances", installed.packages())) {
   devtools::install_github("hartmast/concordances")
 }
 
-lapply(list("dplyr", "collostructions", "concordances", "koRpus"), 
+lapply(list("dplyr", "collostructions", "concordances", "koRpus", "data.table", "pbapply"), 
        require, character.only=T)
 
 
@@ -168,5 +168,34 @@ both[is.na(both)] <- 0
 both %>% collex.dist(reverse = F)
 
 
+################################
+# Toy example: n-gram analyses #
+################################
+
+
+## UNIGRAM ANALYSIS MALE VS. FEMALE ##
+female <- fread("https://onedrive.live.com/download?cid=D5FA76D941B63BA2&resid=D5FA76D941B63BA2%2146750&authkey=ALDO-hdF-qkZrQU", header = F)
+male <- fread("https://onedrive.live.com/download?cid=D5FA76D941B63BA2&resid=D5FA76D941B63BA2%2146751&authkey=AAzlmECWFSgJNLg", header = F)
+
+female$V2 <- pbsapply(1:nrow(female), function(i) gsub(">", "", unlist(strsplit(as.character(female$V2)[i], "/"))[3]))
+male$V2 <- pbsapply(1:nrow(male), function(i) gsub(">", "", unlist(strsplit(as.character(male$V2)[i], "/"))[3]))
+
+
+# make tables
+
+fem <- female[,2] %>% table %>% as.data.frame()
+fem$word <- sapply(1:nrow(fem), function(i) gsub(">", "", unlist(strsplit(as.character(fem$word[i]), "/"))[3]))
+colnames(fem) <- c("word", "freq_fem")
+ml <- male[,2] %>% table %>% as.data.frame()
+fem$word <- sapply(1:nrow(fem), function(i) gsub(">", "", unlist(strsplit(as.character(fem$word[i]), "/"))[3]))
+colnames(ml) <- c("word", "freq_m")
+
+# merge tables
+both <- merge(fem, ml, all = T)
+
+# replace NAs by 0
+both[is.na(both)] <- 0
+
+both %>% collex.dist(reverse = T, am = "chisq")
 
 
