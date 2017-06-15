@@ -182,12 +182,9 @@ male$V2 <- pbsapply(1:nrow(male), function(i) gsub(">", "", unlist(strsplit(as.c
 
 
 # make tables
-
 fem <- female[,2] %>% table %>% as.data.frame()
-fem$word <- sapply(1:nrow(fem), function(i) gsub(">", "", unlist(strsplit(as.character(fem$word[i]), "/"))[3]))
 colnames(fem) <- c("word", "freq_fem")
 ml <- male[,2] %>% table %>% as.data.frame()
-fem$word <- sapply(1:nrow(fem), function(i) gsub(">", "", unlist(strsplit(as.character(fem$word[i]), "/"))[3]))
 colnames(ml) <- c("word", "freq_m")
 
 # merge tables
